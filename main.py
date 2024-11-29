@@ -63,8 +63,38 @@ def medals_to_str(medals_out: list[list], output_file_name: str) -> str:
     print(output_content)
     return output_content
 
-def total(input_file: str, year: int) -> dict[str, list[int]]:
-    pass
+def total(input_file):
+    slovnik = {}
+
+    spis = []
+
+    with open(input_file, "r") as file:
+        for line in file:
+            line = line[:-1]
+            split = line.split('\t')
+            spis.append(split)
+
+        spis.pop(0)
+
+        for i in spis:
+            if i[7] not in slovnik:
+                slovnik[i[7]] = {}
+
+        for i in slovnik:
+            slovnik[i]["Gold"] = 0
+            slovnik[i]["Silver"] = 0
+            slovnik[i]["Bronze"] = 0
+
+        for i in spis:
+            if i[14] == "Gold":
+                slovnik[i[7]]["Gold"] += 1
+
+            if i[14] == "Silver":
+                slovnik[i[7]]["Silver"] += 1
+
+            if i[14] == "Bronze":
+                slovnik[i[7]]["Bronze"] += 1
+    return slovnik
 
 def total_to_str(total_out: dict[str, list[int]], output_file_name: str) -> str:
     pass
