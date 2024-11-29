@@ -9,6 +9,7 @@ def parser_arguments() -> argparse.Namespace:
     parser.add_argument('-medals', nargs=2, metavar=('COUNTRY', 'YEAR'), help='The top ten medalists from this country at a given Olympiad')
     parser.add_argument('-total', type=int, metavar='NAME', help='The total number of medals in the year')
     parser.add_argument('-overall', nargs='*', metavar='COUNTRY', help='The most successful year of the countries')
+    parser.add_argument('-interactive', action='store_true', help='Interactive mode')
     parser.add_argument('-output', metavar='NAME', help='The output file')
     return parser.parse_args()
 
@@ -146,10 +147,73 @@ def overall_to_str(overall_out: dict[str, str]) -> str:
             result += country + ' ' + overall_out[country] + '\n'
     return result
 
+def interactive(input_file: str) -> list:
+    country = input('Enter country name: ')
+    year_city = {}
+    year_medal = {}
+    medals_counter = {'Gold': 0, 'Silver': 0, 'Bronze': 0}
+    with open(input_file, 'rt') as file:
+        next(file)
+        for line in file:
+            elements = line.split('\n')[0].split('\t')
+            year = int(elements[9])
+            team = elements[6]
+            noc = elements[7]
+            city = elements[11]
+            medal = elements[14]
+            medal_name = elements[14]
+            if medal == 'NA':
+                medal = 0
+            else:
+                medal = 1
+
+            if country != team and country != noc:
+                continue
+
+            if year_city.get(year) is None:
+                year_city[year] = city
+
+            if year_medal.get(year) is None:
+                year_medal[year] = medal
+            else:
+                year_medal[year] += medal
+
+            if medal == 1:
+                medals_counter[medal_name] += 1
+
+    first_participation_year = min(year_city.keys())
+    first_participation = [first_participation_year, year_city[first_participation_year]]
+
+    max_key, max_value = max(year_medal.items(), key=lambda item: item[1])
+    most_successful = [max_key, max_value]
+
+    min_key, min_value = min(year_medal.items(), key=lambda item: item[1])
+    most_unfortunate = [min_key, min_value]
+
+    average_gold = medals_counter['Gold'] / len(year_medal.keys())
+    average_silver = medals_counter['Silver'] / len(year_medal.keys())
+    average_bronze = medals_counter['Bronze'] / len(year_medal.keys())
+    return [country, first_participation, most_successful, most_unfortunate, [average_gold, average_silver, average_bronze]]
+
+def interactive_to_str(out: list) -> str:
+    text = ''
+    if len(out) == 0:
+        text += 'Country not found\nEnter valid country names'
+    else:
+        text += f'Statistics of {out[0]}\n'
+        text += f'First participation in the Olympics {out[1][0]} in city {out[1][1]}\n'
+        text += f'The most successful Olympiad in {out[2][0]}, {out[2][1]} medals\n'
+        text += f'The most unsuccessful Olympics in {out[3][0]}, {out[3][1]} medals\n'
+        text += f'Average number of medals\n'
+        text += f'  Gold: {out[4][0]}\n'
+        text += f'  Silver: {out[4][1]}\n'
+        text += f'  Bronze: {out[4][2]}\n'
+    return text
+
 def main():
     args = parser_arguments()
 
-    if not ((args.medals is not None) ^ (args.total is not None) ^ (args.overall is not None)):
+    if not ((args.medals is not None) ^ (args.total is not None) ^ (args.overall is not None) ^ args.interactive):
         print('Please enter either -medals, or -total, or -overall')
         exit()
 
@@ -163,6 +227,9 @@ def main():
     elif args.overall is not None:
         result = overall(args.input_file, args.overall)
         str_data = overall_to_str(result)
+    elif args.interactive is not None:
+        result = interactive(args.input_file)
+        str_data = interactive_to_str(result)
     else:
         exit()
     if args.output is not None:
