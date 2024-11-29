@@ -1,4 +1,5 @@
 import argparse
+from typing import override
 
 MEDALISTS = 10
 
@@ -61,7 +62,6 @@ def medals_to_str(medals_out: list[list], output_file_name: str) -> str:
         output_content += f'Silver: {silver}\n'
         output_content += f'Bronze: {bronze}'
 
-    print(output_content)
     return output_content
 
 def total(input_file: str, year: int) -> dict[str, list[int]]:
@@ -70,13 +70,42 @@ def total(input_file: str, year: int) -> dict[str, list[int]]:
 def total_to_str(total_out: dict[str, list[int]], output_file_name: str) -> str:
     pass
 
-def overall(input_file: str, countries: list) -> dict[str, int]:
+def overall(input_file: str, countries: list[str]) -> dict[str, str]:
     result = {}
-    with open(input_file, 'rt') as file:
-        next(file)
-        for line in file:
-            pass
+    for country in countries:
+        medals_year: dict[str, int] = {}
+        with open(input_file, 'rt') as file:
+            next(file)
+            for line in file:
+                elements = line.split('\n')[0].split('\t')
+                team = elements[6]
+                noc = elements[7]
+                year = elements[9]
+                medal = elements[14]
+                if medal == 'NA':
+                    medal = 0
+                else:
+                    medal = 1
+                if country == team or country == noc:
+                    if medals_year.get(year) is None:
+                        medals_year[year] = medal
+                    else:
+                        medals_year[year] += medal
+            if medals_year == {}:
+                continue
+            max_key, max_value = max(medals_year.items(), key=lambda item: item[1])
+            result[country] = max_key
+    return result
 
+def overall_to_str(overall_out: dict[str, str]) -> str:
+    result = ''
+    if len(overall_out) == 0:
+        result += 'Country not found\nEnter valid countries'
+    else:
+        for country in overall_out:
+            result += '- '
+            result += country + ' ' + overall_out[country] + '\n'
+    return result
 
 def main():
     args = parser_arguments()
@@ -92,10 +121,15 @@ def main():
     elif args.total is not None:
         result = total(args.input_file, args.total)
         str_data = total_to_str(result, args.output)
+    elif args.overall is not None:
+        result = overall(args.input_file, args.overall)
+        str_data = overall_to_str(result)
     else:
         exit()
     if args.output is not None:
         output_file(args.output, str_data)
+
+    print(str_data)
 
 if __name__ == '__main__':
     main()
