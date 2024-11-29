@@ -136,7 +136,7 @@ def overall(input_file: str, countries: list[str]) -> dict[str, list]:
             result[country] = [max_key, max_value]
     return result
 
-def overall_to_str(overall_out: dict[str, str]) -> str:
+def overall_to_str(overall_out: dict[str, list]) -> str:
     result = ''
     if len(overall_out) == 0:
         result += 'Country not found\nEnter valid countries'
@@ -222,7 +222,7 @@ def main():
     str_data = ''
     if args.medals is not None:
         result = medals(args.input_file, args.medals[0], args.medals[1])
-        str_data= medals_to_str(result, args.output)
+        str_data= medals_to_str(result)
     elif args.total is not None:
         result = total(args.input_file, args.total)
         str_data = total_to_str(result)
