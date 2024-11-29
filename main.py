@@ -1,4 +1,5 @@
 import argparse
+from typing import override
 
 MEDALISTS = 10
 
@@ -7,6 +8,7 @@ def parser_arguments() -> argparse.Namespace:
     parser.add_argument('input_file', help='Data file address')
     parser.add_argument('-medals', nargs=2, metavar=('COUNTRY', 'YEAR'), help='The top ten medalists from this country at a given Olympiad')
     parser.add_argument('-total', type=int, metavar='NAME', help='The total number of medals in the year')
+    parser.add_argument('-overall', nargs='*', metavar='COUNTRY', help='The most successful year of the countries')
     parser.add_argument('-output', metavar='NAME', help='The output file')
     return parser.parse_args()
 
@@ -60,7 +62,6 @@ def medals_to_str(medals_out: list[list], output_file_name: str) -> str:
         output_content += f'Silver: {silver}\n'
         output_content += f'Bronze: {bronze}'
 
-    print(output_content)
     return output_content
 
 def total(input_file: str, year):
@@ -108,8 +109,50 @@ def total_to_str(list):
         print(f"{i}: {list[i]["Gold"]}-Gold, {list[i]["Silver"]}-Silver, {list[i]["Bronze"]}-Bronze")
 
 
+def overall(input_file: str, countries: list[str]) -> dict[str, str]:
+    result = {}
+    for country in countries:
+        medals_year: dict[str, int] = {}
+        with open(input_file, 'rt') as file:
+            next(file)
+            for line in file:
+                elements = line.split('\n')[0].split('\t')
+                team = elements[6]
+                noc = elements[7]
+                year = elements[9]
+                medal = elements[14]
+                if medal == 'NA':
+                    medal = 0
+                else:
+                    medal = 1
+                if country == team or country == noc:
+                    if medals_year.get(year) is None:
+                        medals_year[year] = medal
+                    else:
+                        medals_year[year] += medal
+            if medals_year == {}:
+                continue
+            max_key, max_value = max(medals_year.items(), key=lambda item: item[1])
+            result[country] = max_key
+    return result
+
+def overall_to_str(overall_out: dict[str, str]) -> str:
+    result = ''
+    if len(overall_out) == 0:
+        result += 'Country not found\nEnter valid countries'
+    else:
+        for country in overall_out:
+            result += '- '
+            result += country + ' ' + overall_out[country] + '\n'
+    return result
+
 def main():
     args = parser_arguments()
+
+    if not ((args.medals is not None) ^ (args.total is not None) ^ (args.overall is not None)):
+        print('Please enter either -medals, or -total, or -overall')
+        exit()
+
     str_data = ''
     if args.medals is not None:
         result = medals(args.input_file, args.medals[0], args.medals[1])
@@ -117,10 +160,15 @@ def main():
     elif args.total is not None:
         result = total(args.input_file, args.total)
         str_data = total_to_str(result, args.output)
+    elif args.overall is not None:
+        result = overall(args.input_file, args.overall)
+        str_data = overall_to_str(result)
     else:
         exit()
     if args.output is not None:
         output_file(args.output, str_data)
+
+    print(str_data)
 
 if __name__ == '__main__':
     main()
