@@ -1,5 +1,4 @@
 import argparse
-from typing import override
 
 MEDALISTS = 10
 
@@ -42,7 +41,7 @@ def output_file(output_file_name: str, content: str):
     with open(output_file_name, 'wt') as file:
         file.write(content)
 
-def medals_to_str(medals_out: list[list], output_file_name: str) -> str:
+def medals_to_str(medals_out: list[list]) -> str:
     output_content = ''
 
     if len(medals_out) == 0:
@@ -102,15 +101,15 @@ def total(input_file: str, year):
     return slovnik
 
 
-def total_to_str(list):
-
-    for i in list:
-        if list[i]["Gold"] == 0 and list[i]["Silver"] == 0 and list[i]["Bronze"] == 0:
+def total_to_str(output) -> str:
+    text = ''
+    for i in output:
+        if output[i]["Gold"] == 0 and output[i]["Silver"] == 0 and output[i]["Bronze"] == 0:
             continue
-        print(f"{i}: {list[i]["Gold"]}-Gold, {list[i]["Silver"]}-Silver, {list[i]["Bronze"]}-Bronze")
+        text += f"{i}: {output[i]["Gold"]}-Gold, {output[i]["Silver"]}-Silver, {output[i]["Bronze"]}-Bronze\n"
+    return text
 
-
-def overall(input_file: str, countries: list[str]) -> dict[str, str]:
+def overall(input_file: str, countries: list[str]) -> dict[str, list]:
     result = {}
     for country in countries:
         medals_year: dict[str, int] = {}
@@ -134,7 +133,7 @@ def overall(input_file: str, countries: list[str]) -> dict[str, str]:
             if medals_year == {}:
                 continue
             max_key, max_value = max(medals_year.items(), key=lambda item: item[1])
-            result[country] = max_key
+            result[country] = [max_key, max_value]
     return result
 
 def overall_to_str(overall_out: dict[str, str]) -> str:
@@ -144,7 +143,7 @@ def overall_to_str(overall_out: dict[str, str]) -> str:
     else:
         for country in overall_out:
             result += '- '
-            result += country + ' ' + overall_out[country] + '\n'
+            result += f'{country} {overall_out[country][0]} year {overall_out[country][1]} medals\n'
     return result
 
 def interactive(input_file: str) -> list:
@@ -223,7 +222,7 @@ def main():
         str_data= medals_to_str(result, args.output)
     elif args.total is not None:
         result = total(args.input_file, args.total)
-        str_data = total_to_str(result, args.output)
+        str_data = total_to_str(result)
     elif args.overall is not None:
         result = overall(args.input_file, args.overall)
         str_data = overall_to_str(result)
