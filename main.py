@@ -5,7 +5,8 @@ MEDALISTS = 10
 def parser_arguments() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description='Medalists database processing program')
     parser.add_argument('input_file', help='Data file address')
-    parser.add_argument('-medals', nargs=2, metavar = ('COUNTRY', 'YEAR'), help='The top ten medalists from this country at a given Olympiad')
+    parser.add_argument('-medals', nargs=2, metavar=('COUNTRY', 'YEAR'), help='The top ten medalists from this country at a given Olympiad')
+    parser.add_argument('-total', type=int, metavar='NAME', help='The total number of medals in the year')
     parser.add_argument('-output', metavar='NAME', help='The output file')
     return parser.parse_args()
 
@@ -38,7 +39,7 @@ def output_file(output_file_name: str, content: str):
     with open(output_file_name, 'wt') as file:
         file.write(content)
 
-def output(medals_out: list[list], output_file_name: str):
+def medals_to_str(medals_out: list[list], output_file_name: str) -> str:
     output_content = ''
 
     if len(medals_out) == 0:
@@ -60,13 +61,27 @@ def output(medals_out: list[list], output_file_name: str):
         output_content += f'Bronze: {bronze}'
 
     print(output_content)
-    if output_file_name is not None:
-        output_file(output_file_name, output_content)
+    return output_content
+
+def total(input_file: str, year: int) -> dict[str, list[int]]:
+    pass
+
+def total_to_str(total_out: dict[str, list[int]], output_file_name: str) -> str:
+    pass
 
 def main():
     args = parser_arguments()
-    medals_result = medals(args.input_file, args.medals[0], args.medals[1])
-    output(medals_result, args.output)
+    str_data = ''
+    if args.medals is not None:
+        result = medals(args.input_file, args.medals[0], args.medals[1])
+        str_data= medals_to_str(result, args.output)
+    elif args.total is not None:
+        result = total(args.input_file, args.total)
+        str_data = total_to_str(result, args.output)
+    else:
+        exit()
+    if args.output is not None:
+        output_file(args.output, str_data)
 
 if __name__ == '__main__':
     main()
