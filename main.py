@@ -180,6 +180,9 @@ def interactive(input_file: str) -> list:
             if medal == 1:
                 medals_counter[medal_name] += 1
 
+    if year_city == {} or year_medal == {}:
+        return []
+
     first_participation_year = min(year_city.keys())
     first_participation = [first_participation_year, year_city[first_participation_year]]
 
