@@ -99,8 +99,14 @@ def total(input_file: str, year):
                 slovnik[i[7]]["Bronze"] += 1
     return slovnik
 
-def total_to_str(total_out: dict[str, list[int]], output_file_name: str) -> str:
-    pass
+
+def total_to_str(list):
+
+    for i in list:
+        if list[i]["Gold"] == 0 and list[i]["Silver"] == 0 and list[i]["Bronze"] == 0:
+            continue
+        print(f"{i}: {list[i]["Gold"]}-Gold, {list[i]["Silver"]}-Silver, {list[i]["Bronze"]}-Bronze")
+
 
 def main():
     args = parser_arguments()
