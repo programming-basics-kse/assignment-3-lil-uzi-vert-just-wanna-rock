@@ -5,7 +5,8 @@ MEDALISTS = 10
 def parser_arguments() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description='Medalists database processing program')
     parser.add_argument('input_file', help='Data file address')
-    parser.add_argument('-medals', nargs=2, metavar = ('COUNTRY', 'YEAR'), help='The top ten medalists from this country at a given Olympiad')
+    parser.add_argument('-medals', nargs=2, metavar=('COUNTRY', 'YEAR'), help='The top ten medalists from this country at a given Olympiad')
+    parser.add_argument('-total', type=int, metavar='NAME', help='The total number of medals in the year')
     parser.add_argument('-output', metavar='NAME', help='The output file')
     return parser.parse_args()
 
@@ -38,7 +39,7 @@ def output_file(output_file_name: str, content: str):
     with open(output_file_name, 'wt') as file:
         file.write(content)
 
-def output(medals_out: list[list], output_file_name: str):
+def medals_to_str(medals_out: list[list], output_file_name: str) -> str:
     output_content = ''
 
     if len(medals_out) == 0:
@@ -60,13 +61,66 @@ def output(medals_out: list[list], output_file_name: str):
         output_content += f'Bronze: {bronze}'
 
     print(output_content)
-    if output_file_name is not None:
-        output_file(output_file_name, output_content)
+    return output_content
+
+def total(input_file: str, year):
+
+    slovnik = {}
+
+    spis = []
+
+    with open(input_file,"r") as file:
+        for line in file:
+            line = line[:-1]
+            split = line.split('\t')
+            spis.append(split)
+
+        spis.pop(0)
+
+
+        for i in spis:
+            if i[7] not in slovnik:
+                slovnik[i[7]] = {}
+
+        for i in slovnik:
+            slovnik[i]["Gold"] = 0
+            slovnik[i]["Silver"] = 0
+            slovnik[i]["Bronze"] = 0
+
+
+        for i in spis:
+            if i[14] == "Gold" and i[9] == str(year):
+                slovnik[i[7]]["Gold"] += 1
+
+            if i[14] == "Silver" and i[9] == str(year):
+                slovnik[i[7]]["Silver"] += 1
+
+            if i[14] == "Bronze" and i[9] == str(year):
+                slovnik[i[7]]["Bronze"] += 1
+    return slovnik
+
+
+def total_to_str(list):
+
+    for i in list:
+        if list[i]["Gold"] == 0 and list[i]["Silver"] == 0 and list[i]["Bronze"] == 0:
+            continue
+        print(f"{i}: {list[i]["Gold"]}-Gold, {list[i]["Silver"]}-Silver, {list[i]["Bronze"]}-Bronze")
+
 
 def main():
     args = parser_arguments()
-    medals_result = medals(args.input_file, args.medals[0], args.medals[1])
-    output(medals_result, args.output)
+    str_data = ''
+    if args.medals is not None:
+        result = medals(args.input_file, args.medals[0], args.medals[1])
+        str_data= medals_to_str(result, args.output)
+    elif args.total is not None:
+        result = total(args.input_file, args.total)
+        str_data = total_to_str(result, args.output)
+    else:
+        exit()
+    if args.output is not None:
+        output_file(args.output, str_data)
 
 if __name__ == '__main__':
     main()
