@@ -7,6 +7,7 @@ def parser_arguments() -> argparse.Namespace:
     parser.add_argument('input_file', help='Data file address')
     parser.add_argument('-medals', nargs=2, metavar=('COUNTRY', 'YEAR'), help='The top ten medalists from this country at a given Olympiad')
     parser.add_argument('-total', type=int, metavar='NAME', help='The total number of medals in the year')
+    parser.add_argument('-overall', nargs='*', metavar='COUNTRY', help='The most successful year of the countries')
     parser.add_argument('-output', metavar='NAME', help='The output file')
     return parser.parse_args()
 
@@ -69,8 +70,21 @@ def total(input_file: str, year: int) -> dict[str, list[int]]:
 def total_to_str(total_out: dict[str, list[int]], output_file_name: str) -> str:
     pass
 
+def overall(input_file: str, countries: list) -> dict[str, int]:
+    result = {}
+    with open(input_file, 'rt') as file:
+        next(file)
+        for line in file:
+            pass
+
+
 def main():
     args = parser_arguments()
+
+    if not ((args.medals is not None) ^ (args.total is not None) ^ (args.overall is not None)):
+        print('Please enter either -medals, or -total, or -overall')
+        exit()
+
     str_data = ''
     if args.medals is not None:
         result = medals(args.input_file, args.medals[0], args.medals[1])
