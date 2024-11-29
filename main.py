@@ -63,6 +63,7 @@ def medals_to_str(medals_out: list[list], output_file_name: str) -> str:
     print(output_content)
     return output_content
 
+
 def total(input_file):
     slovnik = {}
 
