@@ -1,11 +1,8 @@
 class Overall:
     input_file: str
-    overall_out: dict[str,list]
+    data: dict[str,list]
 
-    def __init__(self, input_file: str):
-        self.input_file = input_file
-
-    def overall(self, countries: list[str]):
+    def file_process(self, countries: list[str]):
         result = {}
         for country in countries:
             medals_year: dict[str, int] = {}
@@ -30,14 +27,18 @@ class Overall:
                     continue
                 max_key, max_value = max(medals_year.items(), key=lambda item: item[1])
                 result[country] = [max_key, max_value]
-        input_file = result
+        self.data = result
 
-    def overall_to_str(self):
+    def __init__(self, input_file: str, countries: list[str]):
+        self.input_file = input_file
+        self.file_process(countries)
+
+    def to_str(self):
         result = ''
-        if len(self.overall_out) == 0:
+        if len(self.data) == 0:
             result += 'Country not found\nEnter valid countries'
         else:
-            for country in self.overall_out:
+            for country in self.data:
                 result += '- '
-                result += f'{country} {self.overall_out[country][0]} year {self.overall_out[country][1]} medals\n'
+                result += f'{country} {self.data[country][0]} year {self.data[country][1]} medals\n'
         return result

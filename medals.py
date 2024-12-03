@@ -1,16 +1,10 @@
-
 MEDALISTS = 10
 
-class Medali:
-
+class Medals:
     input_file: str
-    medals_out: list[list]
+    data: list[list]
 
-
-    def __init__(self,input_file: str):
-        self.input_file = input_file
-
-    def medals(self, country, year):
+    def file_process(self, country, year):
         with open(self.input_file, 'rt') as file:
             counter = 0
             medalists = []
@@ -33,22 +27,26 @@ class Medali:
                 if counter >= MEDALISTS - 1:
                     break
                 counter += 1
-            self.medals_out = medalists
+        self.data = medalists
 
-    def medals_to_str(self):
+    def __init__(self, input_file: str, country, year):
+        self.input_file = input_file
+        self.file_process(country, year)
+
+    def to_str(self):
         output_content = ''
 
-        if len(self.medals_out) == 0:
+        if len(self.data) == 0:
             output_content = 'No medalists found\nPlease enter the correct country or year.'
         else:
-            for i in range(len(self.medals_out)):
+            for i in range(len(self.data)):
                 output_content += f'{i + 1}. '
-                output_content += f'{self.medals_out[i][0]} - {self.medals_out[i][1]} - {self.medals_out[i][2]}'
+                output_content += f'{self.data[i][0]} - {self.data[i][1]} - {self.data[i][2]}'
                 output_content += '\n'
             gold = 0
             silver = 0
             bronze = 0
-            for i in self.medals_out:
+            for i in self.data:
                 gold += i.count('Gold')
                 silver += i.count('Silver')
                 bronze += i.count('Bronze')

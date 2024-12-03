@@ -2,10 +2,7 @@ class Interactive:
     input_file: str
     data: list
 
-    def __init__(self,input_file: str):
-        self.input_file = input_file
-
-    def interactive(self):
+    def file_process(self):
         country = input('Enter country name: ')
         year_city = {}
         year_medal = {}
@@ -54,10 +51,13 @@ class Interactive:
         average_gold = medals_counter['Gold'] / len(year_medal.keys())
         average_silver = medals_counter['Silver'] / len(year_medal.keys())
         average_bronze = medals_counter['Bronze'] / len(year_medal.keys())
-        data = [country, first_participation, most_successful, most_unfortunate,
+        self.data = [country, first_participation, most_successful, most_unfortunate,
                 [average_gold, average_silver, average_bronze]]
 
-    def interactive_to_str(self):
+    def __init__(self,input_file: str):
+        self.input_file = input_file
+
+    def to_str(self):
         text = ''
         if len(self.data) == 0:
             text += 'Country not found\nEnter valid country names'
@@ -71,4 +71,3 @@ class Interactive:
             text += f'  Silver: {self.data[4][1]}\n'
             text += f'  Bronze: {self.data[4][2]}\n'
         return text
-    

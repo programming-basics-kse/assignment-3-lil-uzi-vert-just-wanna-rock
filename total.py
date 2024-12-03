@@ -1,20 +1,8 @@
-
-
-
 class Total:
+    input_file: str
+    data: dict
 
-    input_file: dict
-    output: str
-
-
-
-
-    def __init__(self, input_file: str):
-        self.input_file = input_file
-
-
-    def total(self, year):
-
+    def file_process(self, year):
         slovnik = {}
 
         spis = []
@@ -45,12 +33,16 @@ class Total:
 
                 if i[14] == "Bronze" and i[9] == str(year):
                     slovnik[i[7]]["Bronze"] += 1
-        input_file = slovnik
+        self.data = slovnik
 
-    def total_to_str(self) -> str:
-        text = ""
-        for i in self.output:
-            if self.output[i]["Gold"] == 0 and self.output[i]["Silver"] == 0 and self.output[i]["Bronze"] == 0:
+    def __init__(self, input_file: str, year):
+        self.input_file = input_file
+        self.file_process(year)
+
+    def to_str(self) -> str:
+        text = ''
+        for i in self.data:
+            if self.data[i]["Gold"] == 0 and self.data[i]["Silver"] == 0 and self.data[i]["Bronze"] == 0:
                 continue
-            text += f"{i}: {self.output[i]["Gold"]}-Gold, {self.output[i]["Silver"]}-Silver, {self.output[i]["Bronze"]}-Bronze\n"
-        output = text
+            text += f"{i}: {self.data[i]["Gold"]}-Gold, {self.data[i]["Silver"]}-Silver, {self.data[i]["Bronze"]}-Bronze\n"
+        return text
