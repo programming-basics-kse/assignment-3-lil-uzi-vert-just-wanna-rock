@@ -56,6 +56,7 @@ class Interactive:
 
     def __init__(self,input_file: str):
         self.input_file = input_file
+        self.file_process()
 
     def to_str(self):
         text = ''
